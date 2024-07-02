@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	rawurl string
+	target string
 )
 
 func init() {
-	flag.StringVar(&rawurl, "url", "https://pkg.go.dev/", "source url")
+	flag.StringVar(&target, "url", "https://pkg.go.dev/", "source url")
 	flag.Parse()
 }
 
@@ -27,14 +27,14 @@ func main() {
 }
 
 func Main() error {
-	n, err := node(rawurl)
+	n, err := node(target)
 	if err != nil {
 		return err
 	}
 
 	t := pageTitle(n)
 
-	if err := touch(rawurl, t); err != nil {
+	if err := touch(target, t); err != nil {
 		return err
 	}
 
@@ -72,14 +72,14 @@ func pageTitle(n *html.Node) (title string) {
 	return title
 }
 
-func touch(rawurl, title string) error {
+func touch(url, title string) error {
 	fp, err := os.Create(fmt.Sprintf("%s.md", title))
 	if err != nil {
 		return err
 	}
 	defer fp.Close()
 
-	fp.WriteString(fmt.Sprintf("# [%s](%s)", title, rawurl))
+	fp.WriteString(fmt.Sprintf("# [%s](%s)", title, target))
 
 	return nil
 }
