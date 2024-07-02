@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	target string
+	source string
 )
 
 func init() {
@@ -19,15 +19,15 @@ func init() {
 	flag.Parse()
 
 	if *f != "" {
-		target = *f
+		source = *f
 		return
 	}
 	if len(flag.Args()) > 0 {
-		target = flag.Args()[0]
+		source = flag.Args()[0]
 		return
 	}
 
-	target = "https://pkg.go.dev/"
+	source = "https://pkg.go.dev/"
 }
 
 func main() {
@@ -38,14 +38,14 @@ func main() {
 }
 
 func Main() error {
-	n, err := node(target)
+	n, err := node(source)
 	if err != nil {
 		return err
 	}
 
 	t := pageTitle(n)
 
-	if err := touch(target, t); err != nil {
+	if err := touch(source, t); err != nil {
 		return err
 	}
 
@@ -90,7 +90,7 @@ func touch(url, title string) error {
 	}
 	defer fp.Close()
 
-	fp.WriteString(fmt.Sprintf("# [%s](%s)", title, target))
+	fp.WriteString(fmt.Sprintf("# [%s](%s)", title, source))
 
 	return nil
 }
