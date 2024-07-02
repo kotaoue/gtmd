@@ -15,8 +15,19 @@ var (
 )
 
 func init() {
-	flag.StringVar(&target, "url", "https://pkg.go.dev/", "source url")
+	f := flag.String("url", "", "source url")
 	flag.Parse()
+
+	if *f != "" {
+		target = *f
+		return
+	}
+	if len(flag.Args()) > 0 {
+		target = flag.Args()[0]
+		return
+	}
+
+	target = "https://pkg.go.dev/"
 }
 
 func main() {
