@@ -8,3 +8,8 @@ $ go run main.go -url=https://go.dev/play/
 $ cat "Go Playground - go.dev.md"
 # [Go Playground - go.dev](https://go.dev/play/)
 ```
+
+### Alternative usage method.
+```
+$ go run main.go https://go.dev/play/
+```
