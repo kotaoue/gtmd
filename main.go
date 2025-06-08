@@ -6,28 +6,30 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
+	"strings"
 
 	"golang.org/x/net/html"
 )
 
 var (
 	source string
+	mode   string
 )
 
 func init() {
 	f := flag.String("url", "", "source url")
+	m := flag.String("mode", "", "mode")
 	flag.Parse()
 
 	if *f != "" {
 		source = *f
-		return
-	}
-	if len(flag.Args()) > 0 {
+	} else if len(flag.Args()) > 0 {
 		source = flag.Args()[0]
-		return
+	} else {
+		source = "https://pkg.go.dev/"
 	}
-
-	source = "https://pkg.go.dev/"
+	mode = *m
 }
 
 func main() {
@@ -44,6 +46,9 @@ func Main() error {
 	}
 
 	t := pageTitle(n)
+	if mode == "bookmeter" {
+		t = extractBookmeterTitle(t)
+	}
 
 	if err := touch(source, t); err != nil {
 		return err
@@ -62,6 +67,7 @@ func node(s string) (*html.Node, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can't get page")
 	}
+	defer r.Body.Close()
 
 	page, err := html.Parse(r.Body)
 	if err != nil {
@@ -81,6 +87,15 @@ func pageTitle(n *html.Node) (title string) {
 		}
 	}
 	return title
+}
+
+func extractBookmeterTitle(title string) string {
+	re := regexp.MustCompile(`『([^』]+)』`)
+	matches := re.FindStringSubmatch(title)
+	if len(matches) > 1 {
+		return strings.TrimSpace(matches[1])
+	}
+	return strings.TrimSpace(title)
 }
 
 func touch(url, title string) error {

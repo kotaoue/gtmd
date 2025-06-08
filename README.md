@@ -2,11 +2,16 @@
 Get the title tag and make markdown.
 
 ## Usage
-```ShellSession
+```shell
 $ go run main.go -url=https://go.dev/play/
 
 $ cat "Go Playground - go.dev.md"
 # [Go Playground - go.dev](https://go.dev/play/)
+```
+
+### for [読書メーター](https://bookmeter.com)
+```shell
+$ go run main.go -url=https://bookmeter.com/books/556977 -mode=bookmeter
 ```
 
 ### Alternative usage method.
