@@ -17,7 +17,7 @@ var (
 	mode   string
 )
 
-func init() {
+func main() {
 	f := flag.String("url", "", "source url")
 	m := flag.String("mode", "", "mode")
 	flag.Parse()
@@ -30,9 +30,7 @@ func init() {
 		source = "https://pkg.go.dev/"
 	}
 	mode = *m
-}
 
-func main() {
 	if err := Main(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -90,7 +88,7 @@ func pageTitle(n *html.Node) (title string) {
 }
 
 func extractBookmeterTitle(title string) string {
-	re := regexp.MustCompile(`『([^』]+)』`)
+	re := regexp.MustCompile(`『(.*)』`)
 	matches := re.FindStringSubmatch(title)
 	if len(matches) > 1 {
 		return strings.TrimSpace(matches[1])
