@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -61,5 +63,35 @@ func TestExtractBookmeterTitle(t *testing.T) {
 				t.Errorf("extractBookmeterTitle() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestTouch(t *testing.T) {
+	title := "Test File"
+	url := "http://example.com"
+	filename := fmt.Sprintf("%s.md", title)
+
+	// Clean up the file after the test
+	defer os.Remove(filename)
+
+	err := touch(url, title)
+	if err != nil {
+		t.Fatalf("touch() failed: %v", err)
+	}
+
+	// Check if file exists
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		t.Fatalf("touch() did not create file: %s", filename)
+	}
+
+	// Check file content
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatalf("failed to read created file: %v", err)
+	}
+
+	expectedContent := fmt.Sprintf("# [%s](%s)", title, url)
+	if string(content) != expectedContent {
+		t.Errorf("expected content %q, but got %q", expectedContent, string(content))
 	}
 }
