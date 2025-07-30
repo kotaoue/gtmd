@@ -10,25 +10,21 @@ import (
 	"golang.org/x/net/html"
 )
 
-var (
-	source string
-	mode   string
-)
-
 func main() {
-	setup()
+	source, mode := setup()
 
-	if err := Main(); err != nil {
+	if err := Main(source, mode); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func setup() {
+func setup() (string, string) {
 	f := flag.String("url", "", "source url")
 	m := flag.String("mode", "", "mode")
 	flag.Parse()
 
+	var source string
 	if *f != "" {
 		source = *f
 	} else if len(flag.Args()) > 0 {
@@ -36,10 +32,11 @@ func setup() {
 	} else {
 		source = "https://pkg.go.dev/"
 	}
-	mode = *m
+
+	return source, *m
 }
 
-func Main() error {
+func Main(source, mode string) error {
 	n, err := node(source)
 	if err != nil {
 		return err
