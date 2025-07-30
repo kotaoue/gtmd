@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
-	"strings"
 
 	"golang.org/x/net/html"
 )
@@ -15,7 +13,6 @@ import (
 var (
 	source string
 	mode   string
-	bookmeterTitleRe = regexp.MustCompile(`『(.*)』`)
 )
 
 func main() {
@@ -86,14 +83,6 @@ func pageTitle(n *html.Node) (title string) {
 		}
 	}
 	return title
-}
-
-func extractBookmeterTitle(title string) string {
-	matches := bookmeterTitleRe.FindStringSubmatch(title)
-	if len(matches) > 1 {
-		return strings.TrimSpace(matches[1])
-	}
-	return strings.TrimSpace(title)
 }
 
 func touch(url, title string) error {
