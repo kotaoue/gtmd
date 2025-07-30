@@ -103,7 +103,10 @@ func touch(url, title string) error {
 	}
 	defer fp.Close()
 
-	fp.WriteString(fmt.Sprintf("# [%s](%s)", title, url))
+	_, err = fp.WriteString(fmt.Sprintf("# [%s](%s)", title, url))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
