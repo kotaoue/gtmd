@@ -16,6 +16,15 @@ var (
 )
 
 func main() {
+	setup()
+
+	if err := Main(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func setup() {
 	f := flag.String("url", "", "source url")
 	m := flag.String("mode", "", "mode")
 	flag.Parse()
@@ -28,11 +37,6 @@ func main() {
 		source = "https://pkg.go.dev/"
 	}
 	mode = *m
-
-	if err := Main(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
 }
 
 func Main() error {
