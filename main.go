@@ -15,6 +15,7 @@ import (
 var (
 	source string
 	mode   string
+	bookmeterTitleRe = regexp.MustCompile(`『(.*)』`)
 )
 
 func main() {
@@ -88,8 +89,7 @@ func pageTitle(n *html.Node) (title string) {
 }
 
 func extractBookmeterTitle(title string) string {
-	re := regexp.MustCompile(`『(.*)』`)
-	matches := re.FindStringSubmatch(title)
+	matches := bookmeterTitleRe.FindStringSubmatch(title)
 	if len(matches) > 1 {
 		return strings.TrimSpace(matches[1])
 	}
