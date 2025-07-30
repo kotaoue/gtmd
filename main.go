@@ -25,11 +25,12 @@ func setup() (string, string) {
 	flag.Parse()
 
 	var source string
-	if *f != "" {
+	switch {
+	case *f != "":
 		source = *f
-	} else if len(flag.Args()) > 0 {
+	case len(flag.Args()) > 0:
 		source = flag.Args()[0]
-	} else {
+	default:
 		source = "https://pkg.go.dev/"
 	}
 
