@@ -97,23 +97,32 @@ func TestResolveSource(t *testing.T) {
 	tests := []struct {
 		name     string
 		urlFlag  string
+		args     []string
 		expected string
 	}{
 		{
 			name:     "URL flag provided",
 			urlFlag:  "https://example.com",
+			args:     []string{},
 			expected: "https://example.com",
+		},
+		{
+			name:     "Args provided",
+			urlFlag:  "",
+			args:     []string{"https://golang.org"},
+			expected: "https://golang.org",
 		},
 		{
 			name:     "Default URL when empty",
 			urlFlag:  "",
+			args:     []string{},
 			expected: "https://pkg.go.dev/",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := resolveSource(tt.urlFlag)
+			got := resolveSource(tt.urlFlag, tt.args)
 			if got != tt.expected {
 				t.Errorf("resolveSource() = %v, want %v", got, tt.expected)
 			}

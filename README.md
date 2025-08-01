@@ -2,25 +2,35 @@
 Get the title tag and make markdown.
 
 ## Usage
+
+### Basic usage (creates markdown file)
 ```shell
-$ go run . -url=https://go.dev/play/
+$ go run . --url https://go.dev/play/
 
-$ cat "Go Playground - go.dev.md"
-# [Go Playground - go.dev](https://go.dev/play/)
+$ cat "Go Playground - The Go Programming Language.md"
+# [Go Playground - The Go Programming Language](https://go.dev/play/)
 ```
 
-### Alternative usage method.
+### Using short flags
+```shell
+$ go run . -u https://go.dev/play/
 ```
+
+### Using positional arguments
+```shell
 $ go run . https://go.dev/play/
-```
-
-### for [読書メーター](https://bookmeter.com)
-```shell
-$ go run . -url=https://bookmeter.com/books/556977 -mode=bookmeter
 ```
 
 ### Output markdown link format
 ```shell
-$ go run . -url=https://go.dev/play/ -mode=link
+$ go run . --url https://go.dev/play/ --mode link
 [Go Playground - The Go Programming Language](https://go.dev/play/)
+
+$ go run . -u https://go.dev/play/ -m link
+[Go Playground - The Go Programming Language](https://go.dev/play/)
+```
+
+### for [読書メーター](https://bookmeter.com)
+```shell
+$ go run . --url https://bookmeter.com/books/556977 --mode bookmeter
 ```
