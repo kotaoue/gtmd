@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().StringVarP(&urlFlag, "url", "u", "", "source url")
-	rootCmd.Flags().StringVarP(&modeFlag, "mode", "m", "", "mode (link, bookmeter)")
+	rootCmd.Flags().StringVarP(&modeFlag, "mode", "m", "", "mode (link, clipboard, bookmeter)")
 }
 
 func main() {
@@ -63,6 +64,14 @@ func output(source, title, mode string) error {
 	switch mode {
 	case "link":
 		fmt.Printf("[%s](%s)\n", title, source)
+		return nil
+	case "clipboard":
+		link := fmt.Sprintf("[%s](%s)", title, source)
+		err := clipboard.WriteAll(link)
+		if err != nil {
+			return fmt.Errorf("failed to copy to clipboard: %v", err)
+		}
+		fmt.Printf("Copied to clipboard: %s\n", link)
 		return nil
 	default:
 		return createMarkdownFile(source, title)

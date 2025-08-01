@@ -23,11 +23,14 @@ $ go run . https://go.dev/play/
 
 ### Output markdown link format
 ```shell
-$ go run . --url https://go.dev/play/ --mode link
-[Go Playground - The Go Programming Language](https://go.dev/play/)
-
 $ go run . -u https://go.dev/play/ -m link
 [Go Playground - The Go Programming Language](https://go.dev/play/)
+```
+
+### Copy to clipboard
+```shell
+$ go run . -u https://go.dev/play/ -m clipboard
+Copied to clipboard: [Go Playground - The Go Programming Language](https://go.dev/play/)
 ```
 
 ### for [読書メーター](https://bookmeter.com)
