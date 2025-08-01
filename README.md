@@ -16,5 +16,5 @@ $ go run main.go -url=https://bookmeter.com/books/556977 -mode=bookmeter
 
 ### Alternative usage method.
 ```
-$ go run main.go https://go.dev/play/
+$ go run . https://go.dev/play/
 ```
