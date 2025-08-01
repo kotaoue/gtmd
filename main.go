@@ -3,11 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
-	"net/url"
 	"os"
-
-	"golang.org/x/net/html"
 )
 
 func main() {
@@ -24,85 +20,41 @@ func setup() (string, string) {
 	m := flag.String("mode", "", "mode")
 	flag.Parse()
 
-	var source string
-	switch {
-	case *f != "":
-		source = *f
-	case len(flag.Args()) > 0:
-		source = flag.Args()[0]
-	default:
-		source = "https://pkg.go.dev/"
-	}
+	return resolveSource(*f), *m
+}
 
-	return source, *m
+func resolveSource(urlFlag string) string {
+	switch {
+	case urlFlag != "":
+		return urlFlag
+	case len(flag.Args()) > 0:
+		return flag.Args()[0]
+	default:
+		return "https://pkg.go.dev/"
+	}
 }
 
 func Main(source, mode string) error {
-	n, err := node(source)
+	n, err := fetchPage(source)
 	if err != nil {
 		return err
 	}
 
-	t := pageTitle(n)
+	return output(source, extractTitle(n), mode)
+}
+
+
+func output(source, title, mode string) error {
 	if mode == "bookmeter" {
-		t = extractBookmeterTitle(t)
+		title = extractBookmeterTitle(title)
 	}
 
 	switch mode {
 	case "link":
-		fmt.Printf("[%s](%s)\n", t, source)
+		fmt.Printf("[%s](%s)\n", title, source)
+		return nil
 	default:
-		if err := touch(source, t); err != nil {
-			return err
-		}
+		return createMarkdownFile(source, title)
 	}
-
-	return nil
 }
 
-func node(s string) (*html.Node, error) {
-	u, err := url.Parse(s)
-	if err != nil {
-		return nil, fmt.Errorf("can't parse url")
-	}
-
-	r, err := http.Get(u.String())
-	if err != nil {
-		return nil, fmt.Errorf("can't get page")
-	}
-	defer r.Body.Close()
-
-	page, err := html.Parse(r.Body)
-	if err != nil {
-		return nil, fmt.Errorf("can't parse page")
-	}
-	return page, nil
-}
-
-func pageTitle(n *html.Node) (title string) {
-	if n.Type == html.ElementNode && n.Data == "title" {
-		return n.FirstChild.Data
-	}
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		title = pageTitle(c)
-		if title != "" {
-			break
-		}
-	}
-	return title
-}
-
-func touch(url, title string) error {
-	fp, err := os.Create(fmt.Sprintf("%s.md", title))
-	if err != nil {
-		return err
-	}
-	defer fp.Close()
-
-	_, err = fp.WriteString(fmt.Sprintf("# [%s](%s)", title, url))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

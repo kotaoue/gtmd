@@ -9,14 +9,14 @@ import (
 	"golang.org/x/net/html"
 )
 
-func TestPageTitle(t *testing.T) {
+func TestExtractTitle(t *testing.T) {
 	htmlString := `<html><head><title>Test Title</title></head><body></body></html>`
 	doc, err := html.Parse(strings.NewReader(htmlString))
 	if err != nil {
 		t.Fatalf("failed to parse html: %v", err)
 	}
 
-	title := pageTitle(doc)
+	title := extractTitle(doc)
 	expected := "Test Title"
 	if title != expected {
 		t.Errorf("expected title %q, but got %q", expected, title)
@@ -66,25 +66,22 @@ func TestExtractBookmeterTitle(t *testing.T) {
 	}
 }
 
-func TestTouch(t *testing.T) {
+func TestCreateMarkdownFile(t *testing.T) {
 	title := "Test File"
 	url := "http://example.com"
 	filename := fmt.Sprintf("%s.md", title)
 
-	// Clean up the file after the test
 	defer os.Remove(filename)
 
-	err := touch(url, title)
+	err := createMarkdownFile(url, title)
 	if err != nil {
-		t.Fatalf("touch() failed: %v", err)
+		t.Fatalf("createMarkdownFile() failed: %v", err)
 	}
 
-	// Check if file exists
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		t.Fatalf("touch() did not create file: %s", filename)
+		t.Fatalf("createMarkdownFile() did not create file: %s", filename)
 	}
 
-	// Check file content
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		t.Fatalf("failed to read created file: %v", err)
@@ -93,5 +90,69 @@ func TestTouch(t *testing.T) {
 	expectedContent := fmt.Sprintf("# [%s](%s)", title, url)
 	if string(content) != expectedContent {
 		t.Errorf("expected content %q, but got %q", expectedContent, string(content))
+	}
+}
+
+func TestResolveSource(t *testing.T) {
+	tests := []struct {
+		name     string
+		urlFlag  string
+		expected string
+	}{
+		{
+			name:     "URL flag provided",
+			urlFlag:  "https://example.com",
+			expected: "https://example.com",
+		},
+		{
+			name:     "Default URL when empty",
+			urlFlag:  "",
+			expected: "https://pkg.go.dev/",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := resolveSource(tt.urlFlag)
+			if got != tt.expected {
+				t.Errorf("resolveSource() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestOutput(t *testing.T) {
+	tests := []struct {
+		name   string
+		source string
+		title  string
+		mode   string
+		want   error
+	}{
+		{
+			name:   "Link mode",
+			source: "https://example.com",
+			title:  "Example Title",
+			mode:   "link",
+			want:   nil,
+		},
+		{
+			name:   "Bookmeter mode with link",
+			source: "https://bookmeter.com/books/123",
+			title:  "『Test Book』の感想",
+			mode:   "link",
+			want:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mode == "link" {
+				err := output(tt.source, tt.title, tt.mode)
+				if err != tt.want {
+					t.Errorf("output() error = %v, want %v", err, tt.want)
+				}
+			}
+		})
 	}
 }
