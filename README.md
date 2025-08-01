@@ -16,5 +16,11 @@ $ go run . https://go.dev/play/
 
 ### for [読書メーター](https://bookmeter.com)
 ```shell
-$ go run main.go -url=https://bookmeter.com/books/556977 -mode=bookmeter
+$ go run . -url=https://bookmeter.com/books/556977 -mode=bookmeter
+```
+
+### Output markdown link format
+```shell
+$ go run . -url=https://go.dev/play/ -mode=link
+[Go Playground - The Go Programming Language](https://go.dev/play/)
 ```

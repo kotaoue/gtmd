@@ -48,8 +48,13 @@ func Main(source, mode string) error {
 		t = extractBookmeterTitle(t)
 	}
 
-	if err := touch(source, t); err != nil {
-		return err
+	switch mode {
+	case "link":
+		fmt.Printf("[%s](%s)\n", t, source)
+	default:
+		if err := touch(source, t); err != nil {
+			return err
+		}
 	}
 
 	return nil
