@@ -35,5 +35,5 @@ Copied to clipboard: [Go Playground - The Go Programming Language](https://go.de
 
 ### for [読書メーター](https://bookmeter.com)
 ```shell
-$ go run . --url https://bookmeter.com/books/556977 --mode bookmeter
+$ go run . --u https://bookmeter.com/books/556977 --m bookmeter
 ```
