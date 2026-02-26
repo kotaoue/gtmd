@@ -9,10 +9,10 @@ import (
 
 func TestCreateMarkdownFileFunction(t *testing.T) {
 	tests := []struct {
-		name     string
-		url      string
-		title    string
-		wantErr  bool
+		name    string
+		url     string
+		title   string
+		wantErr bool
 	}{
 		{
 			name:    "Valid input",
@@ -68,7 +68,7 @@ func TestCreateMarkdownFileFunction(t *testing.T) {
 
 func TestCreateMarkdownFileInvalidPath(t *testing.T) {
 	invalidPath := filepath.Join("nonexistent", "directory", "file.md")
-	
+
 	err := createMarkdownFile("https://example.com", invalidPath)
 	if err == nil {
 		t.Error("createMarkdownFile() should fail with invalid path")
