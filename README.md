@@ -1,7 +1,6 @@
 # gtmd
 
 [![Go](https://github.com/kotaoue/gtmd/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kotaoue/gtmd/actions/workflows/test.yml)
-[![Coverage Status](https://coveralls.io/repos/github/kotaoue/gtmd/badge.svg?branch=main)](https://coveralls.io/github/kotaoue/gtmd?branch=main)
 [![License](https://img.shields.io/github/license/kotaoue/gtmd)](https://github.com/kotaoue/gtmd/blob/main/LICENSE)
 
 Get the title tag and make markdown.
