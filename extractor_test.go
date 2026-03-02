@@ -52,6 +52,13 @@ func TestExtractTitleFromNode(t *testing.T) {
 	}
 }
 
+func TestExtractTitleNil(t *testing.T) {
+	got := extractTitle(nil)
+	if got != "" {
+		t.Errorf("extractTitle(nil) = %q, want empty string", got)
+	}
+}
+
 func TestFetchPage(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")

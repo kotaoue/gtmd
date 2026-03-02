@@ -130,6 +130,38 @@ func TestResolveSource(t *testing.T) {
 	}
 }
 
+func TestOutputDefaultMode(t *testing.T) {
+	title := "Test Output Default"
+	source := "https://example.com"
+	filename := fmt.Sprintf("%s.md", title)
+	defer os.Remove(filename)
+
+	err := output(source, title, "")
+	if err != nil {
+		t.Errorf("output() error = %v, want nil", err)
+	}
+
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		t.Errorf("output() with default mode did not create file %s", filename)
+	}
+}
+
+func TestOutputBookmeterMode(t *testing.T) {
+	title := "『Test Book』の感想 - 読書メーター"
+	source := "https://bookmeter.com/books/123"
+	filename := fmt.Sprintf("%s.md", extractBookmeterTitle(title))
+	defer os.Remove(filename)
+
+	err := output(source, title, "bookmeter")
+	if err != nil {
+		t.Errorf("output() error = %v, want nil", err)
+	}
+
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		t.Errorf("output() with bookmeter mode did not create file %s", filename)
+	}
+}
+
 func TestOutput(t *testing.T) {
 	tests := []struct {
 		name   string
