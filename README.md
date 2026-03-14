@@ -7,6 +7,14 @@
 
 Get the title tag and make markdown.
 
+## Flags
+
+| Flag | Short | Values | Default | Description |
+|------|-------|--------|---------|-------------|
+| `--url` | `-u` | any URL | — | Source URL (can also be given as a positional argument) |
+| `--format` | `-f` | `link`, `clipboard` | — | Output format. Creates a markdown file when not set. |
+| `--source` | `-s` | `bookmeter`, `manual` | — | Source type. Auto-detected from the URL when not set. Use `manual` to bypass auto-detection. |
+
 ## Usage
 
 ### Basic usage (creates markdown file)
@@ -30,24 +38,31 @@ go run . -u https://go.dev/play/
 go run . https://go.dev/play/
 ```
 
-### Output markdown link format
+### Output as markdown link (`--format`)
 
 ```shell
-$ go run . -u https://go.dev/play/ -m link
+# Print to stdout
+$ go run . -u https://go.dev/play/ -f link
 [Go Playground - The Go Programming Language](https://go.dev/play/)
-```
 
-### Copy to clipboard
-
-```shell
-$ go run . -u https://go.dev/play/ -m clipboard
+# Copy to clipboard
+$ go run . -u https://go.dev/play/ -f clipboard
 Copied to clipboard: [Go Playground - The Go Programming Language](https://go.dev/play/)
 ```
 
-### for [読書メーター](https://bookmeter.com)
+### Specifying source type (`--source`)
+
+Bookmeter URLs are auto-detected. The source type can also be set explicitly:
 
 ```shell
-go run . -u https://bookmeter.com/books/556977 -m bookmeter
+# Auto-detected from URL
+go run . -u https://bookmeter.com/books/556977
+
+# Explicit bookmeter source type
+go run . -u https://bookmeter.com/books/556977 -s bookmeter
+
+# Bypass auto-detection and create a plain markdown file
+go run . -u https://bookmeter.com/books/556977 -s manual
 ```
 
 ## Build

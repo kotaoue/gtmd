@@ -115,7 +115,7 @@ func TestOutputManualMode(t *testing.T) {
 	filename := fmt.Sprintf("%s.md", title)
 	defer os.Remove(filename)
 
-	err := output(source, title, "manual")
+	err := output(source, title, "", "manual")
 	if err != nil {
 		t.Errorf("output() error = %v, want nil", err)
 	}
@@ -205,7 +205,7 @@ func TestOutputDefaultMode(t *testing.T) {
 	filename := fmt.Sprintf("%s.md", title)
 	defer os.Remove(filename)
 
-	err := output(source, title, "")
+	err := output(source, title, "", "")
 	if err != nil {
 		t.Errorf("output() error = %v, want nil", err)
 	}
@@ -221,7 +221,7 @@ func TestOutputBookmeterMode(t *testing.T) {
 	filename := fmt.Sprintf("%s.md", extractBookmeterTitle(title))
 	defer os.Remove(filename)
 
-	err := output(source, title, "bookmeter")
+	err := output(source, title, "", "bookmeter")
 	if err != nil {
 		t.Errorf("output() error = %v, want nil", err)
 	}
@@ -233,32 +233,35 @@ func TestOutputBookmeterMode(t *testing.T) {
 
 func TestOutput(t *testing.T) {
 	tests := []struct {
-		name   string
-		source string
-		title  string
-		mode   string
-		want   error
+		name       string
+		source     string
+		title      string
+		format     string
+		sourceType string
+		want       error
 	}{
 		{
-			name:   "Link mode",
-			source: "https://example.com",
-			title:  "Example Title",
-			mode:   "link",
-			want:   nil,
+			name:       "Link format",
+			source:     "https://example.com",
+			title:      "Example Title",
+			format:     "link",
+			sourceType: "",
+			want:       nil,
 		},
 		{
-			name:   "Bookmeter mode with link",
-			source: "https://bookmeter.com/books/123",
-			title:  "『Test Book』の感想",
-			mode:   "link",
-			want:   nil,
+			name:       "Bookmeter source with link format",
+			source:     "https://bookmeter.com/books/123",
+			title:      "『Test Book』の感想",
+			format:     "link",
+			sourceType: "bookmeter",
+			want:       nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.mode == "link" {
-				err := output(tt.source, tt.title, tt.mode)
+			if tt.format == "link" {
+				err := output(tt.source, tt.title, tt.format, tt.sourceType)
 				if err != tt.want {
 					t.Errorf("output() error = %v, want %v", err, tt.want)
 				}

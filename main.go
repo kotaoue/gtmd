@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	urlFlag  string
-	modeFlag string
+	urlFlag        string
+	formatFlag     string
+	sourceTypeFlag string
 )
 
 var rootCmd = &cobra.Command{
@@ -20,13 +21,14 @@ var rootCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		source := resolveSource(urlFlag, args)
-		return Main(source, modeFlag)
+		return Main(source, formatFlag, sourceTypeFlag)
 	},
 }
 
 func init() {
 	rootCmd.Flags().StringVarP(&urlFlag, "url", "u", "", "source url")
-	rootCmd.Flags().StringVarP(&modeFlag, "mode", "m", "", "mode (link, clipboard, bookmeter, manual). Auto-detected from URL when not set.")
+	rootCmd.Flags().StringVarP(&formatFlag, "format", "f", "", "output format (link, clipboard). Creates a markdown file if not set.")
+	rootCmd.Flags().StringVarP(&sourceTypeFlag, "source", "s", "", "source type (bookmeter, manual). Auto-detected from URL when not set.")
 }
 
 func main() {
@@ -36,9 +38,9 @@ func main() {
 	}
 }
 
-func Main(source, mode string) error {
-	if mode == "" {
-		mode = detectMode(source)
+func Main(source, format, sourceType string) error {
+	if sourceType == "" {
+		sourceType = detectMode(source)
 	}
 
 	n, err := fetchPage(source)
@@ -46,7 +48,7 @@ func Main(source, mode string) error {
 		return err
 	}
 
-	return output(source, extractTitle(n), mode)
+	return output(source, extractTitle(n), format, sourceType)
 }
 
 func resolveSource(urlFlag string, args []string) string {
@@ -60,12 +62,12 @@ func resolveSource(urlFlag string, args []string) string {
 	}
 }
 
-func output(source, title, mode string) error {
-	if mode == "bookmeter" {
+func output(source, title, format, sourceType string) error {
+	if sourceType == "bookmeter" {
 		title = extractBookmeterTitle(title)
 	}
 
-	switch mode {
+	switch format {
 	case "link":
 		fmt.Printf("[%s](%s)\n", title, source)
 		return nil
@@ -77,9 +79,6 @@ func output(source, title, mode string) error {
 		}
 		fmt.Printf("Copied to clipboard: %s\n", link)
 		return nil
-	case "manual":
-		// manual mode explicitly bypasses auto-detection; creates a plain markdown file.
-		fallthrough
 	default:
 		return createMarkdownFile(source, title)
 	}
