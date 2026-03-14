@@ -66,6 +66,75 @@ func TestExtractBookmeterTitle(t *testing.T) {
 	}
 }
 
+func TestDetectMode(t *testing.T) {
+	tests := []struct {
+		name   string
+		source string
+		want   string
+	}{
+		{
+			name:   "Bookmeter URL",
+			source: "https://bookmeter.com/books/556977",
+			want:   "bookmeter",
+		},
+		{
+			name:   "Bookmeter URL with subdomain",
+			source: "https://www.bookmeter.com/books/556977",
+			want:   "bookmeter",
+		},
+		{
+			name:   "Non-bookmeter URL",
+			source: "https://example.com/page",
+			want:   "",
+		},
+		{
+			name:   "pkg.go.dev URL",
+			source: "https://pkg.go.dev/",
+			want:   "",
+		},
+		{
+			name:   "Invalid URL",
+			source: "://invalid",
+			want:   "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := detectMode(tt.source)
+			if got != tt.want {
+				t.Errorf("detectMode(%q) = %q, want %q", tt.source, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOutputManualMode(t *testing.T) {
+	title := "『Manual Mode Book』の感想 - 読書メーター"
+	source := "https://bookmeter.com/books/123"
+	filename := fmt.Sprintf("%s.md", title)
+	defer os.Remove(filename)
+
+	err := output(source, title, "manual")
+	if err != nil {
+		t.Errorf("output() error = %v, want nil", err)
+	}
+
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		t.Errorf("output() with manual mode did not create file %s", filename)
+	}
+
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatalf("failed to read created file: %v", err)
+	}
+
+	expectedContent := fmt.Sprintf("# [%s](%s)", title, source)
+	if string(content) != expectedContent {
+		t.Errorf("expected content %q, but got %q", expectedContent, string(content))
+	}
+}
+
 func TestCreateMarkdownFile(t *testing.T) {
 	title := "Test File"
 	url := "http://example.com"

@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().StringVarP(&urlFlag, "url", "u", "", "source url")
-	rootCmd.Flags().StringVarP(&modeFlag, "mode", "m", "", "mode (link, clipboard, bookmeter)")
+	rootCmd.Flags().StringVarP(&modeFlag, "mode", "m", "", "mode (link, clipboard, bookmeter, manual). Auto-detected from URL when not set.")
 }
 
 func main() {
@@ -37,6 +37,10 @@ func main() {
 }
 
 func Main(source, mode string) error {
+	if mode == "" {
+		mode = detectMode(source)
+	}
+
 	n, err := fetchPage(source)
 	if err != nil {
 		return err
@@ -73,6 +77,9 @@ func output(source, title, mode string) error {
 		}
 		fmt.Printf("Copied to clipboard: %s\n", link)
 		return nil
+	case "manual":
+		// manual mode explicitly bypasses auto-detection; creates a plain markdown file.
+		fallthrough
 	default:
 		return createMarkdownFile(source, title)
 	}
