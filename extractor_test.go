@@ -86,3 +86,13 @@ func TestFetchPage(t *testing.T) {
 		t.Error("fetchPage() should fail with invalid URL")
 	}
 }
+
+func TestFetchPageURLParseError(t *testing.T) {
+	_, err := fetchPage("://invalid")
+	if err == nil {
+		t.Error("fetchPage() should fail with unparseable URL")
+	}
+	if err.Error() != "can't parse url" {
+		t.Errorf("fetchPage() error = %q, want %q", err.Error(), "can't parse url")
+	}
+}

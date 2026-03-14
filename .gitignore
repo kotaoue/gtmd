@@ -17,3 +17,6 @@ gtmd
 # Generated markdown files from gtmd
 *Go Packages*.md
 *Go Playground*.md
+
+# Coverage reports
+coverage.html
