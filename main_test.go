@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
@@ -267,5 +269,73 @@ func TestOutput(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestOutputClipboard(t *testing.T) {
+	err := output("https://example.com", "Test Title", "clipboard", "")
+	// clipboard.WriteAll succeeds when a clipboard utility is available, or fails in
+	// headless environments. Both outcomes are valid; verify the error format if it fails.
+	if err != nil {
+		if !strings.Contains(err.Error(), "failed to copy to clipboard") {
+			t.Errorf("unexpected error format: %v", err)
+		}
+	}
+}
+
+func TestMainFunction(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`<html><head><title>Test Page</title></head><body></body></html>`))
+	}))
+	defer server.Close()
+
+	err := Main(server.URL, "link", "")
+	if err != nil {
+		t.Errorf("Main() error = %v, want nil", err)
+	}
+}
+
+func TestMainFunctionWithSourceType(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`<html><head><title>『Test Book』の感想</title></head><body></body></html>`))
+	}))
+	defer server.Close()
+
+	err := Main(server.URL, "link", "bookmeter")
+	if err != nil {
+		t.Errorf("Main() error = %v, want nil", err)
+	}
+}
+
+func TestMainFunctionError(t *testing.T) {
+	err := Main("://invalid", "link", "")
+	if err == nil {
+		t.Error("Main() expected error for invalid URL, got nil")
+	}
+}
+
+func TestRootCmdExecution(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`<html><head><title>Root Cmd Test</title></head><body></body></html>`))
+	}))
+	defer server.Close()
+
+	// Reset global flag state before and after to avoid cross-test pollution.
+	savedURL, savedFormat, savedSource := urlFlag, formatFlag, sourceTypeFlag
+	defer func() {
+		urlFlag, formatFlag, sourceTypeFlag = savedURL, savedFormat, savedSource
+		rootCmd.SetArgs(nil)
+	}()
+
+	rootCmd.SetArgs([]string{server.URL, "-f", "link"})
+	err := rootCmd.Execute()
+	if err != nil {
+		t.Errorf("rootCmd.Execute() error = %v", err)
 	}
 }
