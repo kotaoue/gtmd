@@ -33,22 +33,24 @@ go run . https://go.dev/play/
 ### Output markdown link format
 
 ```shell
-$ go run . -u https://go.dev/play/ -m link
+$ go run . -u https://go.dev/play/ -f link
 [Go Playground - The Go Programming Language](https://go.dev/play/)
 ```
 
 ### Copy to clipboard
 
 ```shell
-$ go run . -u https://go.dev/play/ -m clipboard
+$ go run . -u https://go.dev/play/ -f clipboard
 Copied to clipboard: [Go Playground - The Go Programming Language](https://go.dev/play/)
 ```
 
 ### for [読書メーター](https://bookmeter.com)
 
 ```shell
-go run . -u https://bookmeter.com/books/556977 -m bookmeter
+go run . -u https://bookmeter.com/books/556977
 ```
+
+Auto-detected from URL. To suppress auto-detection, pass `-s manual`.
 
 ## Build
 
