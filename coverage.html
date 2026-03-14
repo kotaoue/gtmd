@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>gtmd: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/kotaoue/gtmd/bookmeter.go (100.0%)</option>
+				
+				<option value="file1">github.com/kotaoue/gtmd/detector.go (100.0%)</option>
+				
+				<option value="file2">github.com/kotaoue/gtmd/extractor.go (90.9%)</option>
+				
+				<option value="file3">github.com/kotaoue/gtmd/main.go (43.3%)</option>
+				
+				<option value="file4">github.com/kotaoue/gtmd/writer.go (87.5%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "regexp"
+        "strings"
+)
+
+var (
+        bookmeterTitleRe = regexp.MustCompile(`『(.*)』`)
+)
+
+func extractBookmeterTitle(title string) string <span class="cov8" title="1">{
+        matches := bookmeterTitleRe.FindStringSubmatch(title)
+        if len(matches) &gt; 1 </span><span class="cov8" title="1">{
+                return strings.TrimSpace(matches[1])
+        }</span>
+        <span class="cov8" title="1">return strings.TrimSpace(title)</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "net/url"
+        "strings"
+)
+
+// detectMode returns a mode string inferred from the URL domain.
+// It returns an empty string when no specific mode is detected.
+func detectMode(source string) string <span class="cov8" title="1">{
+        u, err := url.Parse(source)
+        if err != nil </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">switch </span>{
+        case strings.Contains(u.Host, "bookmeter.com"):<span class="cov8" title="1">
+                return "bookmeter"</span>
+        default:<span class="cov8" title="1">
+                return ""</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "fmt"
+        "net/http"
+        "net/url"
+
+        "golang.org/x/net/html"
+)
+
+func fetchPage(source string) (*html.Node, error) <span class="cov8" title="1">{
+        u, err := url.Parse(source)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("can't parse url")
+        }</span>
+
+        <span class="cov8" title="1">r, err := http.Get(u.String())
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("can't get page")
+        }</span>
+        <span class="cov8" title="1">defer r.Body.Close()
+
+        page, err := html.Parse(r.Body)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("can't parse page")
+        }</span>
+        <span class="cov8" title="1">return page, nil</span>
+}
+
+func extractTitle(n *html.Node) (title string) <span class="cov8" title="1">{
+        if n == nil </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+        <span class="cov8" title="1">if n.Type == html.ElementNode &amp;&amp; n.Data == "title" </span><span class="cov8" title="1">{
+                if n.FirstChild != nil </span><span class="cov8" title="1">{
+                        return n.FirstChild.Data
+                }</span>
+                <span class="cov8" title="1">return ""</span>
+        }
+        <span class="cov8" title="1">for c := n.FirstChild; c != nil; c = c.NextSibling </span><span class="cov8" title="1">{
+                title = extractTitle(c)
+                if title != "" </span><span class="cov8" title="1">{
+                        break</span>
+                }
+        }
+        <span class="cov8" title="1">return title</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package main
+
+import (
+        "fmt"
+        "os"
+
+        "github.com/atotto/clipboard"
+        "github.com/spf13/cobra"
+)
+
+var (
+        urlFlag        string
+        formatFlag     string
+        sourceTypeFlag string
+)
+
+var rootCmd = &amp;cobra.Command{
+        Use:   "gtmd [URL]",
+        Short: "Get the title tag and make markdown",
+        Long:  `gtmd fetches a web page, extracts its title, and either creates a markdown file or outputs a markdown link.`,
+        Args:  cobra.MaximumNArgs(1),
+        RunE: func(cmd *cobra.Command, args []string) error <span class="cov0" title="0">{
+                source := resolveSource(urlFlag, args)
+                return Main(source, formatFlag, sourceTypeFlag)
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        rootCmd.Flags().StringVarP(&amp;urlFlag, "url", "u", "", "source url")
+        rootCmd.Flags().StringVarP(&amp;formatFlag, "format", "f", "", "output format (link, clipboard). Creates a markdown file if not set.")
+        rootCmd.Flags().StringVarP(&amp;sourceTypeFlag, "source", "s", "", "source type (bookmeter, manual). Auto-detected from URL when not set.")
+}</span>
+
+func main() <span class="cov0" title="0">{
+        if err := rootCmd.Execute(); err != nil </span><span class="cov0" title="0">{
+                fmt.Fprintln(os.Stderr, err)
+                os.Exit(1)
+        }</span>
+}
+
+func Main(source, format, sourceType string) error <span class="cov0" title="0">{
+        if sourceType == "" </span><span class="cov0" title="0">{
+                sourceType = detectMode(source)
+        }</span>
+
+        <span class="cov0" title="0">n, err := fetchPage(source)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">return output(source, extractTitle(n), format, sourceType)</span>
+}
+
+func resolveSource(urlFlag string, args []string) string <span class="cov8" title="1">{
+        switch </span>{
+        case urlFlag != "":<span class="cov8" title="1">
+                return urlFlag</span>
+        case len(args) &gt; 0:<span class="cov8" title="1">
+                return args[0]</span>
+        default:<span class="cov8" title="1">
+                return "https://pkg.go.dev/"</span>
+        }
+}
+
+func output(source, title, format, sourceType string) error <span class="cov8" title="1">{
+        if sourceType == "bookmeter" </span><span class="cov8" title="1">{
+                title = extractBookmeterTitle(title)
+        }</span>
+
+        <span class="cov8" title="1">switch format </span>{
+        case "link":<span class="cov8" title="1">
+                fmt.Printf("[%s](%s)\n", title, source)
+                return nil</span>
+        case "clipboard":<span class="cov0" title="0">
+                link := fmt.Sprintf("[%s](%s)", title, source)
+                err := clipboard.WriteAll(link)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to copy to clipboard: %v", err)
+                }</span>
+                <span class="cov0" title="0">fmt.Printf("Copied to clipboard: %s\n", link)
+                return nil</span>
+        default:<span class="cov8" title="1">
+                return createMarkdownFile(source, title)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package main
+
+import (
+        "fmt"
+        "os"
+)
+
+func createMarkdownFile(url, title string) error <span class="cov8" title="1">{
+        fp, err := os.Create(fmt.Sprintf("%s.md", title))
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer fp.Close()
+
+        _, err = fp.WriteString(fmt.Sprintf("# [%s](%s)", title, url))
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
