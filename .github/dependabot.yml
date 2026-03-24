@@ -6,3 +6,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+  # Go モジュールの自動更新
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
