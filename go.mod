@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/spf13/cobra v1.10.2
-	golang.org/x/net v0.52.0
+	golang.org/x/net v0.53.0
 )
 
 require (
